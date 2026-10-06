@@ -11,7 +11,7 @@ if (!credentials) {
 config({ credentials });
 
 async function main() {
-  const jobSet = await higgsfield.subscribe('bytedance/seedance-2.5/text-to-video', {
+  const result = await higgsfield.subscribe('bytedance/seedance-2.5/text-to-video', {
     input: {
       prompt: 'A cinematic scene at sunset',
       duration: 5,
@@ -21,12 +21,19 @@ async function main() {
     withPolling: true,
   });
 
-  if (jobSet.isNsfw) throw new Error('Request was rejected by content moderation.');
-  if (jobSet.isFailed) throw new Error('Generation failed.');
-  if (!jobSet.isCompleted) throw new Error('Generation did not complete (it may have been canceled).');
+  const status: string = result.status;
+  if (status !== 'completed') {
+    const reason: Record<string, string> = {
+      nsfw: 'rejected by content moderation',
+      failed: 'generation failed',
+      canceled: 'request was canceled',
+      cancelled: 'request was canceled',
+    };
+    throw new Error(`Request ${result.request_id} did not succeed: ${reason[status] ?? `status "${status}"`}.`);
+  }
 
-  const url = jobSet.jobs[0]?.results?.raw?.url;
-  if (!url) throw new Error('Generation completed but no video URL was returned.');
+  const url = result.video?.url;
+  if (!url) throw new Error(`Request ${result.request_id} completed but returned no video URL.`);
   console.log('Video URL:', url);
 }
 
