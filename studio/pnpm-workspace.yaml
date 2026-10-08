@@ -4,3 +4,6 @@ allowBuilds:
   sharp: true
   unrs-resolver: true
   msw: false
+
+# Only resolve packages published at least a day ago (pnpm 11 enforces this by default).
+minimumReleaseAge: 1440
