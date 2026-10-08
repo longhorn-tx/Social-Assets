@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="800" height="450">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0f2a2a"/><stop offset="1" stop-color="#0d1b2e"/></linearGradient>
+    <linearGradient id="tile" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6d6b8"/><stop offset="1" stop-color="#e9a77f"/></linearGradient>
+    <linearGradient id="bottle" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#1f6f5c"/><stop offset="0.5" stop-color="#3fb08f"/><stop offset="1" stop-color="#1a5a4b"/></linearGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#bg)"/>
+  <rect x="245" y="35" width="310" height="380" rx="18" fill="#ffffff" fill-opacity="0.95"/>
+  <circle cx="272" cy="60" r="11" fill="#e2366f"/>
+  <rect x="290" y="54" width="80" height="7" rx="3.5" fill="#1c1c1f" fill-opacity="0.75"/>
+  <rect x="290" y="64" width="50" height="5" rx="2.5" fill="#1c1c1f" fill-opacity="0.35"/>
+  <rect x="258" y="82" width="284" height="284" rx="6" fill="url(#tile)"/>
+  <ellipse cx="400" cy="320" rx="90" ry="14" fill="#7a3f22" fill-opacity="0.25"/>
+  <rect x="300" y="250" width="200" height="70" rx="8" fill="#fff4e8"/>
+  <rect x="372" y="150" width="56" height="140" rx="16" fill="url(#bottle)"/>
+  <rect x="384" y="128" width="32" height="26" rx="6" fill="#d8c3a5"/>
+  <rect x="380" y="200" width="40" height="40" rx="6" fill="#fff4e8" fill-opacity="0.85"/>
+  <circle cx="320" cy="140" r="26" fill="#ffffff" fill-opacity="0.35"/>
+  <path d="M470 160 q20 -30 40 0 q-20 30 -40 0" fill="#3fb08f" fill-opacity="0.8"/>
+  <path d="M268 384 l8 -8 a6 6 0 0 1 8 8 l-8 8 l-8 -8 a6 6 0 0 1 8 -8" fill="#e2366f"/>
+  <circle cx="306" cy="384" r="7" fill="none" stroke="#1c1c1f" stroke-width="2.5"/>
+  <path d="M332 378 l14 6 l-14 6 z" fill="none" stroke="#1c1c1f" stroke-width="2.5" stroke-linejoin="round"/>
+  <rect x="268" y="398" width="120" height="6" rx="3" fill="#1c1c1f" fill-opacity="0.35"/>
+  <g fill="#ffffff" fill-opacity="0.08"><rect x="60" y="120" width="120" height="120" rx="12"/><rect x="620" y="210" width="120" height="120" rx="12"/></g>
+</svg>

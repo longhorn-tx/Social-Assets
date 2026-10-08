@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="800" height="450">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#16201a"/><stop offset="1" stop-color="#22301f"/></linearGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#bg)"/>
+  <g transform="translate(480 85) rotate(6)"><rect width="260" height="260" rx="16" fill="#e8f0c7"/><rect x="24" y="30" width="120" height="16" rx="6" fill="#2a3a20" fill-opacity="0.5"/></g>
+  <g transform="translate(330 95) rotate(-3)"><rect width="260" height="260" rx="16" fill="#f5e6c4"/><text x="28" y="92" font-family="system-ui,sans-serif" font-size="64" font-weight="800" fill="#e2366f">02</text><rect x="28" y="120" width="170" height="14" rx="6" fill="#2a3a20" fill-opacity="0.7"/><rect x="28" y="144" width="130" height="14" rx="6" fill="#2a3a20" fill-opacity="0.4"/></g>
+  <g transform="translate(80 85)">
+    <rect width="270" height="270" rx="16" fill="#c9f24d"/>
+    <text x="30" y="96" font-family="system-ui,sans-serif" font-size="68" font-weight="800" fill="#16201a">5</text>
+    <text x="30" y="140" font-family="system-ui,sans-serif" font-size="28" font-weight="800" fill="#16201a">TIPS FOR</text>
+    <text x="30" y="174" font-family="system-ui,sans-serif" font-size="28" font-weight="800" fill="#16201a">BETTER</text>
+    <text x="30" y="208" font-family="system-ui,sans-serif" font-size="28" font-weight="800" fill="#16201a">MORNINGS</text>
+    <circle cx="214" cy="70" r="30" fill="#16201a"/><path d="M200 70 h28 m-10 -10 l10 10 l-10 10" stroke="#c9f24d" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g fill="#ffffff"><circle cx="370" cy="400" r="5"/><circle cx="390" cy="400" r="5" fill-opacity="0.35"/><circle cx="410" cy="400" r="5" fill-opacity="0.35"/><circle cx="430" cy="400" r="5" fill-opacity="0.35"/></g>
+</svg>
