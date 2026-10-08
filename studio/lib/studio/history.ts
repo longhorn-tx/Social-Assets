@@ -16,6 +16,9 @@ export interface RunRecord {
   settings: Record<string, unknown>
   /** Owning project, when generated from a project view. */
   projectId?: string
+  /** Weekly-deck shot this run belongs to (deck/post/shot) and its stage. */
+  shotKey?: string
+  shotStage?: "still" | "clip"
   /** Aspect ratio as width / height, used by the justified feed before media loads. */
   aspect: number
   status: RunStatus

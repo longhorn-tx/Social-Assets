@@ -74,7 +74,8 @@ export function useRuns() {
     async (
       plane: GenerationPlane,
       projectId?: string,
-      submissionId?: string
+      submissionId?: string,
+      shot?: { key: string; stage: "still" | "clip" }
     ): Promise<SubmitOutcome> => {
       setError(null)
       const model = getModel(plane.model)
@@ -101,6 +102,7 @@ export function useRuns() {
           prompt: plane.prompt.text,
           settings: plane.settings,
           ...(projectId ? { projectId } : {}),
+          ...(shot ? { shotKey: shot.key, shotStage: shot.stage } : {}),
           aspect: aspectFromSettings(plane.settings),
           status: "running",
           urls: [],

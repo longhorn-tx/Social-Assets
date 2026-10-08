@@ -8,10 +8,21 @@ import {
   useState,
   useSyncExternalStore,
 } from "react"
-import type { ComponentProps } from "react"
-import { Compass, Folder } from "lucide-react"
+import type { ComponentProps, ReactNode } from "react"
+import { CalendarDays, Compass, Folder } from "lucide-react"
 
-import { StudioPromptBox } from "@/components/studio/studio-prompt-box"
+import {
+  PillSelect,
+  StudioPromptBox,
+} from "@/components/studio/studio-prompt-box"
+import { ShotList, type ShotSubmit } from "@/components/studio/shot-list"
+import { WeekPlan } from "@/components/studio/week-plan"
+import { BRANDS } from "@/content/brands"
+import { DECKS, getDeck } from "@/content/decks"
+import { brandFor, postKey } from "@/content/plan"
+import type { Deck, Post } from "@/content/types"
+import { estimateCost, formatCost } from "@/generation/catalog/pricing"
+import { usePlanner } from "@/lib/studio/planner"
 import {
   ExamplePresets,
   TEMPLATES,
@@ -95,6 +106,17 @@ function subscribeNarrow(onChange: () => void): () => void {
   return () => query.removeEventListener("change", onChange)
 }
 
+function parseSettingsSafe(
+  model: Parameters<typeof parseSettings>[0],
+  raw: Record<string, unknown>
+): Record<string, unknown> {
+  try {
+    return parseSettings(model, raw)
+  } catch {
+    return raw
+  }
+}
+
 function newSubmissionId(): string {
   // randomUUID needs a secure context; plain-http LAN previews lack it.
   if (typeof crypto.randomUUID === "function") return crypto.randomUUID()
@@ -123,6 +145,7 @@ function HomeState({
   onOpenAll,
   onOpenProject,
   onUseTemplate,
+  onOpenPost,
 }: {
   title: string
   items: GalleryItem[]
@@ -132,8 +155,9 @@ function HomeState({
   onOpenAll: () => void
   onOpenProject: (project: MyProjectsProject) => void
   onUseTemplate: (template: TemplateItem) => void
+  onOpenPost: (deck: Deck, post: Post) => void
 }) {
-  const [tab, setTab] = useState("explore")
+  const [tab, setTab] = useState("week")
   const promptRef = useRef<HTMLDivElement>(null)
   const images = useMemo(() => heroImages(items), [items])
 
@@ -177,6 +201,9 @@ function HomeState({
             onValueChange={(v) => setTab(String(v))}
           >
             <TabsList>
+              <TabsTrigger value="week" start={<CalendarDays />}>
+                This Week
+              </TabsTrigger>
               <TabsTrigger value="explore" start={<Compass />}>
                 Explore
               </TabsTrigger>
@@ -186,7 +213,9 @@ function HomeState({
             </TabsList>
           </Tabs>
           <div key={tab} className="w-full animate-in duration-300 fade-in-0">
-            {tab === "projects" ? (
+            {tab === "week" ? (
+              <WeekPlan decks={DECKS} onOpenPost={onOpenPost} />
+            ) : tab === "projects" ? (
               <MyProjects
                 projects={projects}
                 generations={items}
@@ -220,12 +249,15 @@ function FeedState({
   title,
   dock,
   onDelete,
+  header,
 }: {
   items: GalleryItem[]
   previewItems: GalleryItem[]
   title: string
   dock: DockProps
   onDelete: (item: GalleryItem) => void
+  /** Shown above the feed, e.g. a deck post's shot list. */
+  header?: ReactNode
 }) {
   const images = useMemo(() => heroImages(previewItems), [previewItems])
   const dockRef = useRef<HTMLDivElement>(null)
@@ -245,6 +277,11 @@ function FeedState({
         className="flex min-h-0 flex-1 flex-col px-4 pt-4"
         style={{ paddingBottom: dockHeight + 24 }}
       >
+        {header ? (
+          <div className="mb-4 max-h-[55%] shrink-0 overflow-y-auto">
+            {header}
+          </div>
+        ) : null}
         <UserGenerations
           items={items}
           title={title}
@@ -322,6 +359,8 @@ export function StudioTemplate({
   const projectsStore = useProjects()
   const uploads = useUploads((s) => s.items)
   const runs = useRuns()
+  const planner = usePlanner()
+  const brand = BRANDS.find((b) => b.id === planner.brandId) ?? null
 
   const surfaces = useMemo(
     () =>
@@ -351,7 +390,13 @@ export function StudioTemplate({
       const plane: GenerationPlane = {
         model: model.id,
         inputMode,
-        prompt: { text: prompt.trim() },
+        // The selected brand's look rides along with free-form prompts.
+        prompt: {
+          text:
+            brand && prompt.trim()
+              ? `${prompt.trim()}\n\n${brand.look}`
+              : prompt.trim(),
+        },
         media: groupMedia(media),
         settings: parseSettings(model, settings),
       }
@@ -363,7 +408,7 @@ export function StudioTemplate({
         error: caught instanceof Error ? caught.message : String(caught),
       }
     }
-  }, [inputMode, media, model, prompt, settings])
+  }, [brand, inputMode, media, model, prompt, settings])
 
   useEffect(() => {
     void hasPlatformCredentials().then(setKeyConfigured)
@@ -470,6 +515,52 @@ export function StudioTemplate({
     )
   }, [canceling, generating, runs])
 
+  // A project opened from the weekly deck shows that post's shot list.
+  const linkedPost = useMemo(() => {
+    if (view.kind !== "project") return null
+    const entry = Object.entries(planner.postProjects).find(
+      ([, projectId]) => projectId === view.projectId
+    )
+    if (!entry) return null
+    const [deckId, postId] = entry[0].split("/")
+    const deck = deckId ? getDeck(deckId) : undefined
+    const post = deck?.posts.find((p) => p.id === postId)
+    return deck && post ? { deck, post } : null
+  }, [planner.postProjects, view])
+
+  const handleOpenPost = (deck: Deck, post: Post) => {
+    const key = postKey(deck.id, post.id)
+    const linked = planner.postProjects[key]
+    planner.setBrand(post.brandId)
+    if (linked && projectsStore.projects.some((p) => p.id === linked)) {
+      setView({ kind: "project", projectId: linked })
+      return
+    }
+    const project = projectsStore.create(
+      `${brandFor(deck, post).name} · ${post.title}`
+    )
+    planner.linkProject(key, project.id)
+    setView({ kind: "project", projectId: project.id })
+  }
+
+  const submitShot: ShotSubmit = async (plane, shot) => {
+    setLocalError(null)
+    if (!keyConfigured) {
+      setKeyOpen(true)
+      return false
+    }
+    const projectId = view.kind === "project" ? view.projectId : undefined
+    const outcome = await runs.submit(plane, projectId, newSubmissionId(), shot)
+    if (!outcome.ok && outcome.missingKey) {
+      setKeyConfigured(false)
+      setKeyOpen(true)
+    }
+    if (outcome.ok && projectId) projectsStore.touch(projectId)
+    return outcome.ok
+  }
+
+  const dockCost = estimateCost(model.id, parseSettingsSafe(model, settings))
+
   const handleUseTemplate = (t: TemplateItem) => {
     setPrompt(t.prompt)
     if (t.modelId && MODELS.some((m) => m.id === t.modelId)) {
@@ -488,6 +579,18 @@ export function StudioTemplate({
   }
 
   const dock: DockProps = {
+    cost: dockCost ? `${formatCost(dockCost)} est.` : undefined,
+    extraPills: (
+      <PillSelect
+        label="Brand"
+        value={brand?.id ?? "none"}
+        onValueChange={(id) => planner.setBrand(id === "none" ? null : id)}
+        options={[
+          { value: "none", label: "No brand" },
+          ...BRANDS.map((b) => ({ value: b.id, label: b.name })),
+        ]}
+      />
+    ),
     surfaces,
     surface,
     onSurfaceChange: changeSurface,
@@ -592,11 +695,25 @@ export function StudioTemplate({
             onOpenAll={() => setView({ kind: "all" })}
             onOpenProject={(p) => setView({ kind: "project", projectId: p.id })}
             onUseTemplate={handleUseTemplate}
+            onOpenPost={handleOpenPost}
           />
         ) : (
           <FeedState
             items={visibleItems}
             previewItems={galleryItems}
+            header={
+              linkedPost ? (
+                <ShotList
+                  deck={linkedPost.deck}
+                  post={linkedPost.post}
+                  brand={brandFor(linkedPost.deck, linkedPost.post)}
+                  records={runs.records}
+                  approvals={planner.approvals}
+                  onApprove={planner.approve}
+                  onSubmit={submitShot}
+                />
+              ) : undefined
+            }
             title={selectedProject?.name ?? "All Generations"}
             dock={dock}
             onDelete={(item) => runs.remove(item.runId)}

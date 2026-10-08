@@ -79,6 +79,8 @@ export interface StudioPromptBoxProps {
   prompt: string
   onPromptChange: (value: string) => void
   cost?: ReactNode
+  /** Extra pills after the settings button (e.g. a brand picker). */
+  extraPills?: ReactNode
   onGenerate: () => void
   onCancel: () => void
   generating?: boolean
@@ -119,7 +121,7 @@ const PICKER_POPUP = {
   collisionPadding: 16,
 } as const
 
-function PillSelect({
+export function PillSelect({
   value,
   options,
   onValueChange,
@@ -516,6 +518,7 @@ export function StudioPromptBox({
   prompt,
   onPromptChange,
   cost,
+  extraPills,
   onGenerate,
   onCancel,
   generating = false,
@@ -622,6 +625,7 @@ export function StudioPromptBox({
               />
             }
           />
+          {extraPills}
         </PromptBox.Actions>
       </PromptBox.Body>
       <MediaInputs

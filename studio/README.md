@@ -22,6 +22,30 @@ stores the key in an HTTP-only cookie. Every authenticated Higgsfield request
 (submit, status, cancel, signed upload URL) runs on the server with
 `Authorization: Key <api-key>`. The browser never receives the key.
 
+## Weekly content decks
+
+Home opens on **This Week**: every post from the current content calendar,
+grouped by brand (Longhorn, American Eagle Builders, American Concrete Coatings,
+American Insulation, HomeStop), with an estimated cost.
+
+1. **Open shot list** creates a project for the post and lists its shots.
+2. **Draft still** (or **Draft N stills** for the whole post) makes a still per
+   shot: Soul 2 for drafts, Flux 2 when a shot reuses an approved still as a
+   reference, Ideogram 4.0 for text-heavy graphics.
+3. Hover a still and click **Use this still** to approve it.
+4. **Animate** turns the approved still into a 9:16 clip: Kling 3.0 Pro, or
+   Seedance 2.0 for hero shots. Transformation shots animate from the previous
+   shot's still to this one.
+5. Shots marked **build in editor** (end cards, wipes) and all on-screen text,
+   phone numbers and logos are added in CapCut/Canva.
+
+Send each week's calendar and it gets added as a new deck
+(see `content/README.md`). Cost labels are list-price estimates from public
+pricing snippets; check open.higgsfield.ai/pricing for your rate.
+
+The **Brand** pill in the dock adds that brand's look to free-form prompts, and
+the Generate button shows an estimated cost for models with a known rate.
+
 ## Using it
 
 - **Explore presets** pick a model and the right aspect ratio for each format,
