@@ -1,32 +1,9 @@
 import { BRANDS } from "../brands"
-import type { Deck, Shot } from "../types"
+import type { Deck } from "../types"
+import { edit, image, video } from "./helpers"
 
 /* Week of Oct 12–18, 2026, transcribed from the weekly content calendar.
    On-screen text, phone numbers and logos are added in the editor. */
-
-const video = (
-  id: string,
-  label: string,
-  time: string,
-  seconds: number,
-  visual: string,
-  extra: Partial<Shot> = {}
-): Shot => ({ id, label, time, seconds, output: "video", visual, ...extra })
-
-const image = (
-  id: string,
-  label: string,
-  visual: string,
-  extra: Partial<Shot> = {}
-): Shot => ({ id, label, output: "image", visual, ...extra })
-
-const edit = (
-  id: string,
-  label: string,
-  time: string,
-  visual: string,
-  onScreen: string
-): Shot => ({ id, label, time, output: "editor", visual, onScreen })
 
 const LONGHORN_REEL_STYLE =
   "Photorealistic, North Texas brick home, autumn golden-hour light, warm tones, cinematic shallow depth of field, vertical 9:16, no visible brand logos on appliances, no close-up faces."
