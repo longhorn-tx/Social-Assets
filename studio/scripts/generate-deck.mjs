@@ -12,8 +12,9 @@
 // Kling 3.0 Pro instead of Seedance 2.0. Spend is tallied at list prices and
 // the run stops before a request would cross --max-usd.
 //
-// Needs HF_API_KEY (the full key copied from open.higgsfield.ai), read from
-// the environment or .env.local. Progress lives in out/<deck>/<post>/manifest.json:
+// Auth: HF_API_KEY (the full key from open.higgsfield.ai) from the environment
+// or .env.local, or a cloud network secret that adds "Authorization: Key …"
+// for api.higgsfield.ai. Progress lives in out/<deck>/<post>/manifest.json:
 // a request id is saved the moment it is queued, so a rerun resumes polling
 // instead of paying for the same generation twice. HF_MOCK=1 makes local
 // placeholder media with ffmpeg instead of calling the API (for testing).
@@ -80,15 +81,24 @@ const deck = BUDGET
 const posts = deck.posts.filter((p) => !option("post") || p.id === option("post"))
 if (posts.length === 0) fail(`No post "${option("post")}" in ${deck.id}`)
 
+// With HF_API_KEY the script sends "Authorization: Key <key>" itself. Without it,
+// it assumes a network secret (a cloud environment's proxy) adds that header on
+// the way to api.higgsfield.ai, and sends none of its own.
 const apiKey = process.env.HF_API_KEY?.trim()
-if (!MOCK && !DRY && !flag("assemble-only") && !apiKey)
-  fail("Set HF_API_KEY to the full key copied from open.higgsfield.ai (in .env.local or the environment).")
-const client =
-  apiKey &&
-  createPlatformClient({
-    apiKey,
-    baseUrl: process.env.HF_API_BASE_URL || "https://api.higgsfield.ai",
-  })
+const client = createPlatformClient({
+  apiKey: apiKey || "network-secret",
+  baseUrl: process.env.HF_API_BASE_URL || "https://api.higgsfield.ai",
+  ...(apiKey
+    ? {}
+    : {
+        fetch: (url, init = {}) => {
+          const headers = { ...(init.headers ?? {}) }
+          delete headers.Authorization
+          return fetch(url, { ...init, headers })
+        },
+      }),
+})
+if (!apiKey && !MOCK && !DRY) console.log("No HF_API_KEY set: relying on a network secret for api.higgsfield.ai.")
 
 /* ── plan + budget ────────────────────────────────────────────────────── */
 let estimate = 0
