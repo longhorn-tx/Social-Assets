@@ -460,6 +460,7 @@ export const DECK_2026_10_19: Deck = {
           "Options · screened enclosure",
           "A screened patio enclosure on a brick home",
           {
+            time: "20–22 s",
             aspect: "16:9",
             onScreen:
               "Enclosures · Sunrooms · All-Season (3-way split, 20–22 s)",

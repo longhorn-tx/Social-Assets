@@ -46,6 +46,31 @@ pricing snippets; check open.higgsfield.ai/pricing for your rate.
 The **Brand** pill in the dock adds that brand's look to free-form prompts, and
 the Generate button shows an estimated cost for models with a known rate.
 
+## Generate a whole week without the app
+
+`pnpm assets` runs a deck end to end with ffmpeg installed and `HF_API_KEY`
+(the full key from open.higgsfield.ai) in `.env.local` or the environment:
+
+```sh
+pnpm assets --deck 2026-10-19 --dry-run              # plan + list-price estimate, no spend
+pnpm assets --deck 2026-10-19 --stage stills         # cents: one still per shot
+pnpm assets --deck 2026-10-19 --redo hook,catch      # regenerate weak stills
+pnpm assets --deck 2026-10-19 --stage clips --max-usd 20
+```
+
+Output goes to `out/<deck>/<post>/`: numbered stills and clips, the assembled
+1080×1920 reel (`<post>.mp4`, clips trimmed to the deck's timings, on-screen
+text burned in the safe zone, end cards with the contact line) and `notes.txt`
+with the text, voiceover and end card for each shot. Statics produce the raw
+images; headline/checklist layouts still go in Canva.
+
+Cost rules built in: clips are only made from a still that exists (check the
+stills before `--stage clips`), clip length is the shot's own length, Kling
+sound is off, `--budget` uses Kling instead of Seedance, the run stops before
+crossing `--max-usd`, and a queued request id is saved immediately so a rerun
+resumes it instead of paying again. `HF_MOCK=1` makes placeholder media to
+test the pipeline for free.
+
 ## Using it
 
 - **Explore presets** pick a model and the right aspect ratio for each format,
